@@ -63,9 +63,12 @@ end
 
 module Local_solver = Opam_0install.Solver.Make (Switch_and_local_packages_context)
 
-let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages switch_state =
+let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages ~pin_packages
+    switch_state =
   let local_packages_names = OpamPackage.Name.Map.keys local_packages in
-  let names_set = OpamPackage.Name.Set.of_list local_packages_names in
+  let names_set =
+    OpamPackage.Name.Set.(diff (of_list local_packages_names) (of_list pin_packages))
+  in
   let test = if build_only then OpamPackage.Name.Set.empty else names_set in
   let constraints =
     let no_constraints = OpamPackage.Name.Map.empty in
@@ -94,17 +97,21 @@ let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages swi
       in
       Ok deps
 
-let get_opam_info ~switch_state pkg =
-  let opam_file = OpamSwitchState.opam switch_state pkg in
+let get_opam_info ~local_opam_files ~switch_state pkg =
+  let opam_file =
+    if OpamPackage.Name.Map.mem pkg.OpamPackage.name local_opam_files then
+      snd (OpamPackage.Name.Map.find pkg.OpamPackage.name local_opam_files)
+    else OpamSwitchState.opam switch_state pkg
+  in
   Opam.Package_summary.from_opam ~pkg opam_file
 
 (* TODO catch exceptions and turn to error *)
 
-let calculate ~build_only ~allow_jbuilder ~local_opam_files ~local_packages ?ocaml_version
-    switch_state =
+let calculate ~build_only ~allow_jbuilder ~local_opam_files ~local_packages ~pin_packages
+    ?ocaml_version switch_state =
   let open Rresult.R.Infix in
   calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages:local_opam_files
-    switch_state
+    ~pin_packages switch_state
   >>= fun deps ->
   Logs.app (fun l ->
       l "%aFound %a opam dependencies for %a." Pp.Styled.header ()
@@ -120,4 +127,4 @@ let calculate ~build_only ~allow_jbuilder ~local_opam_files ~local_packages ?oca
         deps);
   Logs.app (fun l ->
       l "%aQuerying opam database for their metadata and Dune compatibility." Pp.Styled.header ());
-  Ok (List.map ~f:(get_opam_info ~switch_state) deps)
+  Ok (List.map ~f:(get_opam_info ~local_opam_files ~switch_state) deps)
