@@ -24,6 +24,9 @@ module Arg : sig
   (** CLI flag to skip any prompt and perform actions straight away. The value of this flag
       must be passed to [Prompt.confirm]. *)
 
+  val keep_clone : [ `Keep_clone of bool ] Cmdliner.Term.t
+  (** CLI flag to keep the [.git] directory after pulling the vendored sources. *)
+
   val duniverse_repos : [ `Duniverse_repos of string list option ] Cmdliner.Term.t
   (** CLI arguments consisting of the list of source deps repo to process. If [None],
       the whole duniverse should be processed. If [Some l] then [l] is non empty. *)

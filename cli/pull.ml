@@ -53,7 +53,7 @@ let check_dune_lang_version ~yes ~repo =
     Logs.debug (fun l -> l "No dune-project found");
     Ok () )
 
-let run (`Yes yes) (`Repo repo) (`Duniverse_repos duniverse_repos) () =
+let run (`Yes yes) (`Repo repo) (`Keep_clone keep_clone) (`Duniverse_repos duniverse_repos) () =
   let open Result.O in
   Repo.lockfile repo >>= fun lockfile_path ->
   Lockfile.load ~file:lockfile_path >>= fun lockfile ->
@@ -66,7 +66,7 @@ let run (`Yes yes) (`Repo repo) (`Duniverse_repos duniverse_repos) () =
       Common.filter_duniverse ~to_consider:duniverse_repos duniverse >>= fun duniverse ->
       check_dune_lang_version ~yes ~repo >>= fun () ->
       OpamGlobalState.with_ `Lock_none (fun global_state ->
-          Pull.duniverse ~global_state ~repo ~full duniverse)
+          Pull.duniverse ~global_state ~repo ~full ~trim_clone:(not keep_clone) duniverse)
 
 let info =
   let open Cmdliner in
@@ -89,7 +89,7 @@ let info =
 let term =
   Cmdliner.Term.(
     term_result
-      ( const run $ Common.Arg.yes $ Common.Arg.repo $ Common.Arg.duniverse_repos
-      $ Common.Arg.setup_logs () ))
+      ( const run $ Common.Arg.yes $ Common.Arg.repo $ Common.Arg.keep_clone
+      $ Common.Arg.duniverse_repos $ Common.Arg.setup_logs () ))
 
 let cmd = (term, info)

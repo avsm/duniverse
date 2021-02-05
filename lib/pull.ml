@@ -41,7 +41,7 @@ let pre_pull_clean_up ~full ~duniverse_dir duniverse =
     Result.List.iter duniverse ~f:(fun { Duniverse.Repo.dir; _ } ->
         Bos.OS.Dir.delete ~must_exist:false ~recurse:true Fpath.(duniverse_dir / dir))
 
-let duniverse ~full ~repo ~global_state duniverse =
+let duniverse ~full ~repo ~global_state ~trim_clone duniverse =
   if List.is_empty duniverse then Ok ()
   else
     let open Result.O in
@@ -49,4 +49,4 @@ let duniverse ~full ~repo ~global_state duniverse =
     pre_pull_clean_up ~full ~duniverse_dir duniverse >>= fun () ->
     Bos.OS.Dir.create duniverse_dir >>= fun _created ->
     mark_duniverse_content_as_vendored ~duniverse_dir >>= fun () ->
-    pull_source_dependencies ~global_state ~trim_clone:true ~duniverse_dir duniverse
+    pull_source_dependencies ~global_state ~trim_clone ~duniverse_dir duniverse
