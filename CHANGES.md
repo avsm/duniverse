@@ -2,12 +2,18 @@
 
 ### Added
 
+- Add a `-l`/`--lockfile` command line option to explicitly set the lockfile
+  to use or generate in `pull` or `lock` (#163, @NathanReb)
+
 ### Changed
 
 ### Deprecated
 
 ### Fixed
 
+- Fix a bug where `pull` and `lock` would expect the lockfile to sit in a different place
+  by consistently determining the path to the lockfile based on the project name
+  as specified in the `dune-project` (#163, @NathanReb) 
 - Fix a log that was still refering to the old tool name `duniverse` (#158, @rizo)
 - Improve how the default branch for a git repository is queried, fixing a bug
   where opam-monorepo wouldn't work outside of of git repo and a bug where it wouldn't

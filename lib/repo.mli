@@ -19,10 +19,7 @@ val dune_project : t -> Fpath.t
 val project_name : t -> (string, [> `Msg of string ]) result
 (** Returns the name of the project, as set in the dune-project. *)
 
-val lockfile : ?local_packages:Types.Opam.package list -> t -> (Fpath.t, [> `Msg of string ]) result
+val lockfile : t -> (Fpath.t, [> `Msg of string ]) result
 (** Returns the path to the opam-monorepo lockfile for the given repo.
-    If the repo contains a single package, then it's the ["<package_name>.opam.locked"]
-    file at the root of the repo.
-    If it contains multiple packages, then it's the ["<project_name>.opam.locked"] file
-    at the root of the repo.
-    One can provide [local_packages] if they were already computed. *)
+    If [name] is passed, the lockfile is ["<name>.opam.locked"] from the repo's root,
+    otherwise it defaults to ["<project_name>.opam.locked"]. *)

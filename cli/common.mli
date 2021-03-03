@@ -20,6 +20,9 @@ module Arg : sig
   (** CLI option to specify the root directory of the project. Used to find root packages,
       duniverse files and directories. Defaults to the current directory. *)
 
+  val lockfile : [ `Lockfile of Fpath.t option ] Cmdliner.Term.t
+  (** CLI option to specify the path to the lockfile to use or generate. *)
+
   val yes : [ `Yes of bool ] Cmdliner.Term.t
   (** CLI flag to skip any prompt and perform actions straight away. The value of this flag
       must be passed to [Prompt.confirm]. *)
@@ -40,3 +43,7 @@ val filter_duniverse :
   to_consider:string list option -> Duniverse.t -> (Duniverse.t, Rresult.R.msg) result
 (** Filters the duniverse according to the CLI provided list of repos or returns an error
     if some of the provided packages don't match any of the duniverse repositories. *)
+
+val lockfile : explicit_lockfile:Fpath.t option -> Repo.t -> (Fpath.t, Rresult.R.msg) result
+(** Returns the lockfile path to use based on the repository path and the optionally
+    user specified explicit path. *)

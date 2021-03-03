@@ -44,16 +44,6 @@ let project_name t =
 
 let lockfile ~name t = Fpath.(t / (name ^ ".opam.locked"))
 
-let lockfile ?local_packages:lp t =
+let lockfile t =
   let open Result.O in
-  let local_packages =
-    match lp with
-    | Some lp -> Ok lp
-    | None ->
-        local_packages ~recurse:false t >>| fun lp ->
-        List.map ~f:(fun (name, _) -> { Types.Opam.name; version = None }) (String.Map.bindings lp)
-  in
-  local_packages >>= fun pkgs ->
-  match pkgs with
-  | [ { name; _ } ] -> Ok (lockfile ~name t)
-  | _ -> project_name t >>= fun name -> Ok (lockfile ~name t)
+  project_name t >>= fun name -> Ok (lockfile ~name t)

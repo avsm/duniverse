@@ -53,9 +53,10 @@ let check_dune_lang_version ~yes ~repo =
     Logs.debug (fun l -> l "No dune-project found");
     Ok () )
 
-let run (`Yes yes) (`Repo repo) (`Duniverse_repos duniverse_repos) () =
+let run (`Yes yes) (`Repo repo) (`Lockfile explicit_lockfile) (`Duniverse_repos duniverse_repos) ()
+    =
   let open Result.O in
-  Repo.lockfile repo >>= fun lockfile_path ->
+  Common.lockfile ~explicit_lockfile repo >>= fun lockfile_path ->
   Lockfile.load ~file:lockfile_path >>= fun lockfile ->
   Lockfile.to_duniverse lockfile >>= function
   | [] ->
@@ -89,7 +90,7 @@ let info =
 let term =
   Cmdliner.Term.(
     term_result
-      ( const run $ Common.Arg.yes $ Common.Arg.repo $ Common.Arg.duniverse_repos
-      $ Common.Arg.setup_logs () ))
+      ( const run $ Common.Arg.yes $ Common.Arg.repo $ Common.Arg.lockfile
+      $ Common.Arg.duniverse_repos $ Common.Arg.setup_logs () ))
 
 let cmd = (term, info)
