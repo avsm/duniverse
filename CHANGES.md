@@ -8,6 +8,9 @@
 
 ### Fixed
 
+- Lock file: exclude all packages present in the workspace to avoid build errors due to
+  duplicated packages (#180, @pitag-ha)
+
 ### Removed
 
 ### Security

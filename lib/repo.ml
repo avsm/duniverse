@@ -35,6 +35,17 @@ let local_packages ~recurse ?filter t =
                 "Conflicting definitions for the same package have been found:\n- %s\n- %s"
                 (Fpath.to_string a) (Fpath.to_string b)))
 
+let all_local_packages_names repo =
+  let open Result.O in
+  Bos.OS.Dir.exists repo >>= fun exists ->
+  if not exists then Ok OpamPackage.Name.Set.empty
+  else
+    Bos.OS.Path.fold
+      ~elements:(`Sat (fun p -> Ok (Fpath.has_ext ".opam" p)))
+      (fun path acc ->
+        OpamPackage.Name.Set.add (OpamPackage.Name.of_string Fpath.(basename (rem_ext path))) acc)
+      OpamPackage.Name.Set.empty [ repo ]
+
 let dune_project t = Fpath.(t / "dune-project")
 
 let project_name t =

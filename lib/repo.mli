@@ -13,6 +13,9 @@ val local_packages :
     Only considers packages defined at the repo's root unless [recurse] is [true].
     Only considers packages listed in [filter] if the parameter is used.  *)
 
+val all_local_packages_names : t -> (OpamPackage.Name.Set.t, [> Rresult.R.msg ]) result
+(** Returns the names of all locally defined opam packages as a set. *)
+
 val dune_project : t -> Fpath.t
 (** Returns the path to the dune-project file. *)
 

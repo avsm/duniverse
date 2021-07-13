@@ -92,7 +92,7 @@ let depend_on_compiler_variants local_packages =
       Opam.depends_on_compiler_variants depends)
     local_packages
 
-let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages switch_state =
+let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages ~exclude switch_state =
   let local_packages_names = OpamPackage.Name.Map.keys local_packages in
   let names_set = OpamPackage.Name.Set.of_list local_packages_names in
   let test = if build_only then OpamPackage.Name.Set.empty else names_set in
@@ -112,7 +112,7 @@ let calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages swi
         List.filter
           ~f:(fun pkg ->
             let name = OpamPackage.name pkg in
-            not (OpamPackage.Name.Set.mem name names_set))
+            not (OpamPackage.Name.Set.mem name exclude))
           packages
       in
       Ok deps
@@ -123,10 +123,10 @@ let get_opam_info ~switch_state pkg =
 
 (* TODO catch exceptions and turn to error *)
 
-let calculate ~build_only ~allow_jbuilder ~local_opam_files ~local_packages ?ocaml_version
+let calculate ~build_only ~allow_jbuilder ~local_opam_files ~local_packages ~exclude ?ocaml_version
     switch_state =
   let open Rresult.R.Infix in
-  calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages:local_opam_files
+  calculate_raw ~build_only ~allow_jbuilder ~ocaml_version ~local_packages:local_opam_files ~exclude
     switch_state
   >>= fun deps ->
   Logs.app (fun l ->
